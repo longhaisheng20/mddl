@@ -5,7 +5,6 @@ class BaseAO{
 
     private $xa_db_names=array();//二维数组 key为uuid value为db_name数组
 
-
 	public function __construct() {
 
 	}
@@ -55,6 +54,8 @@ class BaseAO{
 	public function xa_end_prepare_and_commit($uuid){
 		$this->xa_end_prepare($uuid);
 		$this->xa_commit($uuid);
+        $this->xa_distribute_dbroutes[$uuid]=array();
+        $this->xa_db_names[$uuid]=array();
 	}
 
 	public function xa_rollback($uuid){
@@ -62,6 +63,8 @@ class BaseAO{
 			foreach ($this->xa_distribute_dbroutes[$uuid] as $distribute){
 				$distribute->getDbroute()->xa_rollback($distribute->getXid(),$distribute->getXaParams());
 			}
+            $this->xa_distribute_dbroutes[$uuid]=array();
+            $this->xa_db_names[$uuid]=array();
 		}
 	}
 
