@@ -25,10 +25,11 @@ class cls_sqlexecute implements cls_idb {
     
     /** 一次事务中所包含的数据库名 */
     private static $db_name_list_in_one_transaction = array();
-    
+
     /** 是否需要标记  一次事务中所包含的数据库名 默认为false,不标记,只有事务中代码才需要标记*/
     private static $need_record_db_name_in_one_transaction=false;
 
+    /** 是否已执行xa_end方法 */
     private $has_execute_xa_end=false;
     
     /**

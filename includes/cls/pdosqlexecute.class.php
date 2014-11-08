@@ -1,12 +1,16 @@
 <?php
 class cls_pdosqlexecute implements cls_idb {
-
+	
+	/** 主库连接 */
     private $connection;
 
+	/** 从库连接 */
     private $read_connection;
 
+	/** 数据库连接数组 */
     private $connect_array;
 
+	/** 是否有读库*/
     private $has_read_db = false;
 
     /** 此次操作是否有事务 */
@@ -21,6 +25,7 @@ class cls_pdosqlexecute implements cls_idb {
     /** 是否需要标记  一次事务中所包含的数据库名 默认为false,不标记,只有事务中代码才需要标记*/
     private static $need_record_db_name_in_one_transaction=false;
 
+    /** 是否已执行xa_end方法 */
     private $has_execute_xa_end=false;
 
     /**
@@ -357,11 +362,13 @@ class cls_pdosqlexecute implements cls_idb {
     }
     
     public function xa_rollback($uuid){
-        try{
-            $this->connection->query("XA END '$uuid'");
-            $this->has_execute_xa_end=false;
-        }catch(PDOException $p){
-//            echo "XA END exception for ".$p->getMessage();//此处可记录日志，不记录也没关系
+        if(!$this->has_execute_xa_end){
+            try{
+                $this->connection->query("XA END '$uuid'");
+                $this->has_execute_xa_end=false;
+            }catch(PDOException $e){
+                
+            }
         }
 		$this->connection->query("XA ROLLBACK '$uuid'");
     }
