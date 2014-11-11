@@ -176,7 +176,7 @@ class cls_dbroute {
 		if(!$dateTable &&  empty($logic_column_value)){
 			throw new DBRouteException('非日期分表必须要有逻辑列的值');
 		}
-		if(!$dateTable && stristr($sql, 'select ')){
+		if(!$dateTable && (stristr($sql, 'select ') || stristr($sql, 'update ') || stristr($sql, 'delete '))){
 			$db_logic_column = $this->getDbParse()->getDbLogicColumn();
 			$table_logic_column = $this->getDbParse()->getTableLogicColumn();
 			if($db_logic_column && !$this->match_logic_equal($sql, $db_logic_column)){
