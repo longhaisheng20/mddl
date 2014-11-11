@@ -115,12 +115,12 @@ class cls_dbroute {
 				if($this->db_hash_type === 'mod_hash' || $this->db_hash_type === 'consistent_hash' ){
 					$mod_value=$this->getDbParse()->getTableMod($logic_col_value);
 					$cache_key=md5($sql.'_'.$db_sql_arr['db_name'].$mod_value);
-					$cache_sql=cls_shmop::read($cache_key);// TODO 此处生产环境中应该放入 memcache 或 redis 中，否则可能造成php本地cache占用过多内存，shmop没有LRU和缓存失效时间设置
+					$cache_sql=cls_shmop::read($cache_key);// TODO
 					if($cache_sql){
 						$db_sql_arr['sql']=$cache_sql;
 					}else{
 						$newSql = $this->getNewSql($sql, $logic_col_value);
-						cls_shmop::write($cache_key,$newSql);
+						cls_shmop::write($cache_key,$newSql);// TODO
 						$db_sql_arr['sql']=$newSql;
 					}
 				}elseif($this->db_hash_type=='virtual_hash'){
@@ -173,19 +173,20 @@ class cls_dbroute {
 
 	private function getNewSql($sql,$logic_column_value='') {
 		$dateTable=$this->getDbParse()->getIsdateTable();
-		if(!$dateTable &&  empty($logic_column_value)){
-			throw new DBRouteException('非日期分表必须要有逻辑列的值');
-		}
-		if(!$dateTable && (stristr($sql, 'select ') || stristr($sql, 'update ') || stristr($sql, 'delete '))){
-			$db_logic_column = $this->getDbParse()->getDbLogicColumn();
-			$table_logic_column = $this->getDbParse()->getTableLogicColumn();
-			if($db_logic_column && !$this->match_logic_equal($sql, $db_logic_column)){
+        if(!$dateTable &&  empty($logic_column_value)){
+            throw new DBRouteException('非日期分表必须要有逻辑列的值');
+        }
+        if(!$dateTable && (stristr($sql, 'select ') || stristr($sql, 'update ') || stristr($sql, 'delete '))){
+            $db_logic_column = $this->getDbParse()->getDbLogicColumn();
+            $table_logic_column = $this->getDbParse()->getTableLogicColumn();
+            $dateDb=$this->getDbParse()->getIsDateDb();
+            if(!$dateDb && $db_logic_column && !$this->match_logic_equal($sql, $db_logic_column)){
 				throw new DBRouteException("sql where条件中必须要包含逻辑分库列 $db_logic_column=");
 			}
 			if($table_logic_column && !$this->match_logic_equal($sql, $table_logic_column)){
 				throw new DBRouteException("sql where条件中必须要包含逻辑分表列 $table_logic_column=");
 			}
-		}
+        }
 		$table_name = $this->getDbParse()->getTableName($logic_column_value);
 		$logic_table = $this->getDbParse()->getLogicTable();
 		$first_pos = stripos($sql, " " . $logic_table . " ");
