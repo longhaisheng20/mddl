@@ -107,14 +107,14 @@ class cls_pdosqlexecute implements cls_idb {
     }
 
     private function prepare($sql) {
-        $transaction_read_master = false; //事务中的读操作是否读主库
+        $transaction_read_master = false; //transaction select is read from master
         if (defined('TRANSACTION_READ_MASTER')) {
             $transaction_read_master = TRANSACTION_READ_MASTER;
         }
-        if (($this->this_operation_have_transaction && $transaction_read_master) || (substr(trim($sql),0,10)==='/*master*/') && stristr($sql, 'select ')) { //有事务操作并且事务中select配置成操作主库,事务中select查询走主库
+        if (($this->this_operation_have_transaction && $transaction_read_master) || (substr(trim($sql),0,10)==='/*master*/') && stristr($sql, 'select ')) {
             $db = $this->getMasterConnection();
         } else {
-            if ($this->has_read_db && preg_match('/^select\s/i', trim($sql))) { // 判断SQL语句是否为读
+            if ($this->has_read_db && preg_match('/^select\s/i', trim($sql))) {
                 $db = $this->getReadConnection();
             } else {
                 $db = $this->getMasterConnection();
@@ -129,20 +129,20 @@ class cls_pdosqlexecute implements cls_idb {
 
     private function getReadConnection() {
         if (!$this->read_connection) {
-            $connect_array = $this->connect_array; // 载入读库配置
+            $connect_array = $this->connect_array; // load config db array
             $db_name = $this->connect_array['db'];
             $db_read_host_array = isset($this->connect_array['read_db_hosts']) ? $this->connect_array['read_db_hosts'] : array();
             $host=null;
-            if(isset($connect_array['read_db_arithmetic']) && $connect_array['read_db_arithmetic']=='roll'){//轮询算法
+            if(isset($connect_array['read_db_arithmetic']) && $connect_array['read_db_arithmetic']=='roll'){//poll
                $host = cls_rollrand::get_db_host_roll($db_read_host_array, $db_name);
             }else{
-               $host = cls_rollrand::get_db_host_rand($db_read_host_array, $db_name);//随机
+               $host = cls_rollrand::get_db_host_rand($db_read_host_array, $db_name);//rand
             }
-            if(empty($host)){//如果从库对应的host不存在，则从主库列表查找
+            if(empty($host)){//if slave not exists,search in masters
                 $db_host_array = isset($connect_array['db_hosts']) ? $connect_array['db_hosts'] : array();
                 if ($db_host_array) {
                     $host = $db_host_array[$db_name];
-                    if(stripos($host,',')){//双master
+                    if(stripos($host,',')){//double master
                         $host = cls_rollrand::get_write_db_host_rand($host);
                     }
                 } else {
@@ -163,7 +163,7 @@ class cls_pdosqlexecute implements cls_idb {
             if ($db_host_array) {
                 $db = $connect_array['db'];
                 $host = $db_host_array[$db];
-                if(stripos($host,',')){//双master
+                if(stripos($host,',')){//double master
                     $host = cls_rollrand::get_write_db_host_rand($host);
                 }
             } else {
@@ -212,7 +212,7 @@ class cls_pdosqlexecute implements cls_idb {
         if(self::$need_record_db_name_in_one_transaction){
             self::$db_name_list_in_one_transaction[]=$this->connect_array['db'];
         } 	
-        if(count(self::get_database_name_list_in_one_transaction())>1){//事务中超过一个数据库,抛出异常,让客户端回滚
+        if(count(self::get_database_name_list_in_one_transaction())>1){
             throw new Exception(' transactions have more than one database,plese check you code ');
         }
         $return = $this->connection->commit();
