@@ -73,13 +73,13 @@ class cls_sqlexecute implements cls_idb {
             if ($db_host_array) {
                 $db = $connect_array['db'];
                 $host = $db_host_array[$db];
-                if(stripos($host,',')){//双master
+                if(stripos($host,',')){//double master
                     $host = cls_rollrand::get_write_db_host_rand($host);
                 }
             } else {
                 $host = $connect_array['host'];
             }
-            //host 前加p:可以设置成持久化连接，不见意使用持久化
+            //host befor p: can set persistence，not recommended use persistence
             $this->connection = new mysqli($host, $connect_array['user_name'], $connect_array['pass_word'], $connect_array['db'], $connect_array['port']);
             if ($this->connection->error) {
                 echo('Database Connect Error : ' . $this->connection->error);
@@ -96,16 +96,16 @@ class cls_sqlexecute implements cls_idb {
             $db_read_host_array = isset($this->connect_array['read_db_hosts']) ? $this->connect_array['read_db_hosts'] : array();
             $db = $connect_array['db'];
             if ($db_read_host_array) {
-                if(isset($connect_array['read_db_arithmetic']) && $connect_array['read_db_arithmetic']=='roll'){//轮询算法
+                if(isset($connect_array['read_db_arithmetic']) && $connect_array['read_db_arithmetic']=='roll'){//poll
                 	$host = cls_rollrand::get_db_host_roll($db_read_host_array, $db);
                 }else{
-                	$host = cls_rollrand::get_db_host_rand($db_read_host_array, $db);//随机
+                	$host = cls_rollrand::get_db_host_rand($db_read_host_array, $db);//rand
                 }
-                if(empty($host)){//如果从库的host不存在，去主库中查找对应的host
+                if(empty($host)){//slave host not exists，search host in master hosts
                     $db_host_array = isset($this->connect_array['db_hosts']) ? $this->connect_array['db_hosts'] : array();
                     if ($db_host_array) {
                         $host = $db_host_array[$db];
-                        if(stripos($host,',')){//双master
+                        if(stripos($host,',')){//double master
                             $host = cls_rollrand::get_write_db_host_rand($host);
                         }
                     } else {
@@ -122,7 +122,6 @@ class cls_sqlexecute implements cls_idb {
         }
     }
 
-    /** 获取一次事务中所包含的所有数据库名*/
     public static function get_database_name_list_in_one_transaction(){
         return array_unique(self::$db_name_list_in_one_transaction);
     }
@@ -295,7 +294,7 @@ class cls_sqlexecute implements cls_idb {
 
     private function executeQuery($sql, $params = array()) {
         $result = $this->replaceSql($sql, $params);
-        $transaction_read_master = false; //事务中的读操作是否读主库
+        $transaction_read_master = false; //transaction select is read from master
         if (defined('TRANSACTION_READ_MASTER')) {
             $transaction_read_master = TRANSACTION_READ_MASTER;
         }
@@ -304,7 +303,7 @@ class cls_sqlexecute implements cls_idb {
             $this->init();
             $stmt = $this->connection->prepare($result['sql']);
         } else {
-            if ($this->has_read_db && stristr($sql, 'select ')) { //有读库配置并且是 select 查询 走读库
+            if ($this->has_read_db && stristr($sql, 'select ')) { //have slave config,the  select read from slaves
                 $this->init_read_connection();
                 $stmt = $this->read_connection->prepare($result['sql']);
                 $read_conn = true;
@@ -436,17 +435,17 @@ class cls_sqlexecute implements cls_idb {
         	self::$db_name_list_in_one_transaction[]=$this->connect_array['db'];
         }
         $this->this_operation_have_transaction = true;
-        $this->connection->autocommit(false); //关闭本次数据库连接的自动命令提交事务模式
+        $this->connection->autocommit(false); // close this transactions autocommit
     }
 
     public function commit() {
         if(self::$need_record_db_name_in_one_transaction){
         	self::$db_name_list_in_one_transaction[]=$this->connect_array['db'];
         }
-    	if(count(self::get_database_name_list_in_one_transaction())>1){//事务中超过一个数据库,抛出异常,让客户端回滚
+    	if(count(self::get_database_name_list_in_one_transaction())>1){
     		throw new Exception(" transactions have more than one database,plese check you code ");
     	}
-        $this->connection->commit(); //提交事务后，打开本次数据库连接的自动命令提交事务模式
+        $this->connection->commit();
         if(self::$need_record_db_name_in_one_transaction){
         	self::$db_name_list_in_one_transaction=array();
         	self::$need_record_db_name_in_one_transaction=false;
@@ -456,7 +455,7 @@ class cls_sqlexecute implements cls_idb {
     }
 
     public function rollBack() {
-        $this->connection->rollback(); //回滚事务后，打开本次数据库连接的自动命令提交事务模式
+        $this->connection->rollback();
         if(self::$need_record_db_name_in_one_transaction){
         	self::$db_name_list_in_one_transaction=array();
         	self::$need_record_db_name_in_one_transaction=false;
