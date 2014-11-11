@@ -4,12 +4,11 @@ require(dirname(__FILE__) . '/includes/init.php');
 require(dirname(__FILE__) . '/includes/ao/RefundAO.php');
 
 
+
 $m = new RefundInfoModel();
-print_r($m->getAll(10));
-//print_r($m->getAll(10));
-//print_r($m->getAll(75));
-//print_r($m->selectByIn());
-//print_r($m->queryAllFromTable());
+print_r($m->insert(10, 1));
+print_r($m->selectByIn());
+print_r($m->queryAllFromTable());
 die;
 $refundAO = new RefundAO();
 

@@ -176,7 +176,7 @@ class cls_dbroute {
 		if(!$dateTable &&  empty($logic_column_value)){
 			throw new DBRouteException('非日期分表必须要有逻辑列的值');
 		}
-		if(!$dateTable && stristr($sql, 'select ') || stristr($sql, 'SELECT ')){
+		if(!$dateTable && stristr($sql, 'select ')){
 			$db_logic_column = $this->getDbParse()->getDbLogicColumn();
 			$table_logic_column = $this->getDbParse()->getTableLogicColumn();
 			if($db_logic_column && !$this->match_logic_equal($sql, $db_logic_column)){
@@ -347,7 +347,7 @@ class cls_dbroute {
 	}
 	/**
 	 * 只支持分表的表,不包括日期分表
-	 * 支持分表列in查询，此方法一般会查多个库表,主要根据in条件
+	 * 支持分表列in查询，此方法会查多个库表,主要根据in条件,性能较差,不见意使用
 	 * select in 查询，只支持in，不支持分表列的大于等于 |小于等于| between...and 操作
 	 * @param string $sql select id,user_id,order_sn,add_time from order where id>#id# and user_id in(#user_ids#) limit 0,30  user_ids为config.php中的select_in_logic_column
 	 * @param array $params（key为:size|sort_field|sort_order|及当前类中select_in_logic_column的值）  key为select_in_logic_column 的值为数组 具体参见 OrderModel类中的方法

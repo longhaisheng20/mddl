@@ -111,10 +111,10 @@ class cls_pdosqlexecute implements cls_idb {
         if (defined('TRANSACTION_READ_MASTER')) {
             $transaction_read_master = TRANSACTION_READ_MASTER;
         }
-        if ($this->this_operation_have_transaction && $transaction_read_master) { //有事务操作并且事务中select配置成操作主库,事务中select查询走主库
+        if (($this->this_operation_have_transaction && $transaction_read_master) || (substr(trim($sql),0,10)==='/*master*/') && stristr($sql, 'select ')) { //有事务操作并且事务中select配置成操作主库,事务中select查询走主库
             $db = $this->getMasterConnection();
         } else {
-            if ($this->has_read_db && preg_match('/^select\s/i', $sql)) { // 判断SQL语句是否为读
+            if ($this->has_read_db && preg_match('/^select\s/i', trim($sql))) { // 判断SQL语句是否为读
                 $db = $this->getReadConnection();
             } else {
                 $db = $this->getMasterConnection();

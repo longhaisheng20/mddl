@@ -1,21 +1,8 @@
 <?php
 header("Content-Type: text/html; charset=utf-8");
 require(dirname(__FILE__) . '/includes/init.php');
-require(dirname(__FILE__) . '/includes/ao/BaseAO.php');
 require(dirname(__FILE__) . '/includes/ao/OrderAO.php');
 
-
-$ao = new OrderAO();
-$ao->test_xa_transatction(10);
-die;
-
-
-
-$cityModel=new CityModel();
-$cityModel->insert();
-print_r($cityModel->getAllCity());
-
-die;
 //$a=cls_sqlexecute::getInstance('mmall_0000',$user_multiple_dbroute_config);
 //$c=cls_sqlexecute::getInstance('mmall_0002',$user_multiple_dbroute_config);
 //print_r($a->getList());

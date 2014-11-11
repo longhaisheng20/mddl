@@ -300,7 +300,7 @@ class cls_sqlexecute implements cls_idb {
             $transaction_read_master = TRANSACTION_READ_MASTER;
         }
         $read_conn = false;
-        if (($this->this_operation_have_transaction && $transaction_read_master) || (substr(trim($result['sql']),0,10)==='/*master*/') && stristr($sql, 'select '))) { //有事务操作并且事务中select配置成操作主库,事务中select查询走主库 或select 以 /*master*/开头的select查询
+        if (($this->this_operation_have_transaction && $transaction_read_master) || (substr(trim($result['sql']),0,10)==='/*master*/') && stristr($result['sql'], 'select ')) { //有事务操作并且事务中select配置成操作主库,事务中select查询走主库 或select 以 /*master*/开头的select查询
             $this->init();
             $stmt = $this->connection->prepare($result['sql']);
         } else {

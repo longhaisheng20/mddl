@@ -31,8 +31,15 @@ class OrderModel extends BaseModel { //单库多表
     }
 
     public function getRow($id) {
-        $sql = "select id,order_sn,user_id,add_time,modify_time from sc_order where id=#id# and user_id=#user_id# ";
+        $sql = " /*master*/ select id,order_sn,user_id,add_time,modify_time from sc_order where id=#id# and user_id=#user_id# ";
         $params['id'] = $id;
+        $params['user_id'] = 10;
+        return $this->dbroute->getRow($sql, $params);
+    }
+    
+    public function get_group_by($id) {
+        $sql = "/*master*/select max(user_id) as users from sc_order where user_id=#user_id#  group by id";
+        //$params['id'] = $id;
         $params['user_id'] = 10;
         return $this->dbroute->getRow($sql, $params);
     }
