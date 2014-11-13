@@ -38,7 +38,7 @@ class OrderModel extends BaseModel { //单库多表
     }
     
     public function get_group_by($id) {
-        $sql = "/*master*/select max(user_id) as users from sc_order where user_id=#user_id#  group by id";
+        $sql = "/*master*/select max(user_id) as users from sc_order where user_id=#user_id#  group by user_id";
         //$params['id'] = $id;
         $params['user_id'] = 10;
         return $this->dbroute->getRow($sql, $params);

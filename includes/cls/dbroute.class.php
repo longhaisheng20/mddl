@@ -176,15 +176,26 @@ class cls_dbroute {
         if(!$dateTable &&  empty($logic_column_value)){
             throw new DBRouteException('非日期分表必须要有逻辑列的值');
         }
-        if(!$dateTable && (stristr($sql, 'select ') || stristr($sql, 'update ') || stristr($sql, 'delete '))){
+        if(stristr($sql, 'select ') || stristr($sql, 'update ') || stristr($sql, 'delete ')){
             $db_logic_column = $this->getDbParse()->getDbLogicColumn();
             $table_logic_column = $this->getDbParse()->getTableLogicColumn();
             $dateDb=$this->getDbParse()->getIsDateDb();
             if(!$dateDb && $db_logic_column && !$this->match_logic_equal($sql, $db_logic_column)){
 				throw new DBRouteException("sql where条件中必须要包含逻辑分库列 $db_logic_column=");
 			}
-			if($table_logic_column && !$this->match_logic_equal($sql, $table_logic_column)){
+			if(!$dateTable &&$table_logic_column && !$this->match_logic_equal($sql, $table_logic_column)){
 				throw new DBRouteException("sql where条件中必须要包含逻辑分表列 $table_logic_column=");
+			}
+        }
+        if(stristr($sql, 'update ')){
+            $db_logic_column = $this->getDbParse()->getDbLogicColumn();
+            $table_logic_column = $this->getDbParse()->getTableLogicColumn();
+            $dateDb=$this->getDbParse()->getIsDateDb();
+            if(!$dateDb && $db_logic_column && $this->match_logic_column_in_update($sql, $db_logic_column)){
+				throw new DBRouteException("update语句中不能更新逻辑分库列 $db_logic_column=");
+			}
+			if(!$dateTable && $table_logic_column && $this->match_logic_column_in_update($sql, $table_logic_column)){
+				throw new DBRouteException("update语句中不能更新逻辑分表列 $table_logic_column=");
 			}
         }
 		$table_name = $this->getDbParse()->getTableName($logic_column_value);
@@ -203,6 +214,20 @@ class cls_dbroute {
 		return $sql;
 	}
 	
+	
+	private function match_logic_column_in_update($sql,$logic_name){
+        $array=explode(' where ',$sql);
+        if($array){
+	        $str=substr($array[0], stripos($array[0],' set '));
+	        $pattern = "/\s*$logic_name\b\s*=\s*/";
+	        preg_match($pattern, $str, $matches);
+	        if($matches){
+	            return true;
+	        }
+        }
+        return false;
+	}
+	
 	private function match_logic_equal($sql,$logic_name){
 		$pattern = "/\s*$logic_name\b\s*=\s*/";//前后有无空格 +逻辑列+前后有无空格 + 等号    //$pattern = '/(\s*)+user_id+(\s*)+/';
 		preg_match($pattern, $sql, $matches);
@@ -217,8 +242,6 @@ class cls_dbroute {
 		$this->setDBConn($db);
 		return $db;
 	}
-
-
 
 	private function check_logic_params($params = array()) {
 		$logicTable = $this->getDbParse()->getLogicTable();
