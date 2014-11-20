@@ -32,7 +32,7 @@ class cls_pdosqlexecute implements cls_idb {
      * @param string $db_name  数据库名
      * @param ay $db_route_config 分库分表配置
      */
-    private function __construct($db_name = '', $db_route_config = array()) {
+    private function __construct($db_route_config = array(),$db_name = '') {
         if (!$this->connect_array) {
             global $default_config_array;
             $this->connect_array = $db_route_config ? $db_route_config : $default_config_array;
@@ -45,7 +45,7 @@ class cls_pdosqlexecute implements cls_idb {
         }
     }
 
-    public static function getInstance($db_name = '', $db_route_config = array()) {
+    public static function getInstance($db_route_config = array(),$db_name = '') {
         global $default_config_array;
         if (empty($db_name)) {
             $db_name = $default_config_array['db'];
@@ -53,7 +53,7 @@ class cls_pdosqlexecute implements cls_idb {
         if (isset(self::$single_instance_list[$db_name])) {
             return self::$single_instance_list[$db_name];
         } else {
-            self::$single_instance_list[$db_name] = new self($db_name, $db_route_config);
+            self::$single_instance_list[$db_name] = new self($db_route_config,$db_name);
             return self::$single_instance_list[$db_name];
         }
     }

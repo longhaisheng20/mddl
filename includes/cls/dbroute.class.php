@@ -268,9 +268,9 @@ class cls_dbroute {
 	private function setDBConn($db) {
 		if (!isset($this->connections[$db])) {
 			if ($this->getUseMysqliExtend()) {
-				$this->connections[$db] = cls_sqlexecute::getInstance($db, $this->config_array);
+				$this->connections[$db] = cls_sqlexecute::getInstance($this->config_array,$db);
 			} else {
-				$this->connections[$db] = cls_pdosqlexecute::getInstance($db, $this->config_array);
+				$this->connections[$db] = cls_pdosqlexecute::getInstance($this->config_array,$db);
 			}
 		}
 	}
