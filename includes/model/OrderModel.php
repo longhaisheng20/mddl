@@ -67,7 +67,7 @@ class OrderModel extends BaseModel { //单库多表
     }
 
     public function queryAll() { //遍历所有库表，不建议使用
-        $sql = "select order_sn,add_time,user_id from sc_order where id>#id# order by id desc ";
+        $sql = "select order_sn,add_time,user_id from sc_order where id>#id# order by id desc  limit 10,20";
         $params['id'] = 0;
         return $this->dbroute->queryResultFromAllDbTables($sql, $params);
     }
@@ -78,7 +78,7 @@ class OrderModel extends BaseModel { //单库多表
         $params['sort_filed'] = 'id';
         $params['sort_order'] = 'desc';
         $params['user_ids'] = array(1, 1025, 2, 1026, 2049, 10);
-        return $this->dbroute->selectByIn("select id,user_id,order_sn,add_time from sc_order where id>#id# and user_id in(#user_ids#) order by id desc limit 0,20", $params);
+        return $this->dbroute->selectByIn("select id,user_id,order_sn,add_time from sc_order where id>#id# and user_id in(#user_ids#) order by id desc limit 0,30 ", $params);
     }
 
     public function transactionTest() { //事务测试

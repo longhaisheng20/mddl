@@ -583,7 +583,7 @@ class cls_dbroute {
 				}
 			}
 		}
-
+        
 		if ($merge_result) {
 			if ($sort_filed) {
 				foreach ((array)$merge_result as $key => $row) {
