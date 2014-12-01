@@ -369,6 +369,20 @@ class cls_dbroute {
 		$db_name = $decorate['db_name'];
 		return $this->getDbConnection($db_name)->getColumn($decorate['sql'], $decorate['params']);
 	}
+
+    private function get_limit_start_end($sql){
+        $pattern="/limit\s+([0-9]+)\s?(?:,\s?([0-9]+))?/";
+        preg_match($pattern, $sql, $matches);
+        if(count($matches)==3){
+            $start=$matches[1];
+            $end=$matches[2];
+        }
+        if(count($matches)==2){
+            $start=0;
+            $end=$matches[1];
+        }
+        return array('match'=>$matches[0],'start'=>$start,'end'=>$end);
+    }
 	/**
 	 * 只支持分表的表,不包括日期分表
 	 * 支持分表列in查询，此方法会查多个库表,主要根据in条件,性能较差,不见意使用
@@ -410,9 +424,17 @@ class cls_dbroute {
 		}
 		if (!stripos($sql, ' limit ')) {
 			$sql = $sql . ' limit ' . $size;
-		}
+            $start=0;
+		}else{
+            $limit_start_end_arr=$this->get_limit_start_end($sql);
+            $start=$limit_start_end_arr['start'];
+            $size=$limit_start_end_arr['end'];
+            $total=$start+$size;
+            $sql = str_ireplace($limit_start_end_arr['match']," limit $total ",$sql );
+        }
 
-		unset($params['size']);
+
+        unset($params['size']);
 		unset($params['sort_filed']);
 		unset($params['sort_order']);
 		unset($params[$select_in_logic_column]);
@@ -489,7 +511,7 @@ class cls_dbroute {
 					array_multisort($sort_folder, SORT_ASC, $merge_result);
 				}
 			}
-			return array_slice($merge_result, 0, $size);
+			return array_slice($merge_result, $start, $size);
 		} else {
 			return array();
 		}
@@ -522,6 +544,20 @@ class cls_dbroute {
 		if (isset($params[$logic_col])) {
 			throw new DBRouteException("error params ,it must not have key " . $logic_col);
 		}
+
+        if ($size >= 100) {
+            $size = 100;
+        }
+        if (!stripos($sql, ' limit ')) {
+            $sql = $sql . ' limit ' . $size;
+            $start=0;
+        }else{
+            $limit_start_end_arr=$this->get_limit_start_end($sql);
+            $start=$limit_start_end_arr['start'];
+            $size=$limit_start_end_arr['end'];
+            $total=$start+$size;
+            $sql = str_ireplace($limit_start_end_arr['match']," limit $total ",$sql );
+        }
 
 		$merge_result = array();
 		if($this->getDbParse()->getIsDateDb() && $this->getDbParse()->getIsdateTable()){
@@ -559,7 +595,7 @@ class cls_dbroute {
 					array_multisort($sort_folder, SORT_ASC, $merge_result);
 				}
 			}
-			return array_slice($merge_result, 0, $size);
+			return array_slice($merge_result, $start, $size);
 		} else {
 			return array();
 		}

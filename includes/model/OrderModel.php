@@ -97,7 +97,7 @@ class OrderModel extends BaseModel { //单库多表
             $this->dbroute->insert($sql, $params);
             $id = $params['id'];
 
-            $update_sql = "update sc_order set order_sn=#order_sn# where id=#id# and #user_id# ";
+            $update_sql = "update sc_order set order_sn=#order_sn# where id=#id# and user_id=#user_id# ";
             $params = array();
             $params['id'] = $id;
             $params['order_sn'] = 'bcd';

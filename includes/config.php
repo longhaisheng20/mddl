@@ -49,30 +49,30 @@ $slave_read_host_array['mmall'] = DB_HOST . "," . DB_HOST; //key为数据库名�
 $sc_order_dbroute_single_config['read_db_hosts'] = $slave_read_host_array; //dbroute根据key为‘read_db_hosts’是否设置了值 判断是否有读写分离配置
 /***************************************************************************************************************************************/
 //
-///***************order_goods库表配置(单库多表)*************************************************************************************************/
-//$sc_order_goods_dbroute_single_config = array();
-//$sc_order_goods_dbroute_single_config['host'] = DB_HOST; //db_host
-//$sc_order_goods_dbroute_single_config['user_name'] = DB_USER_NAME; //db username
-//$sc_order_goods_dbroute_single_config['pass_word'] = DB_PASSWORD; //db pwd
-//$sc_order_goods_dbroute_single_config['port'] = DB_PORT; //db port
-//
-//$sc_order_goods_dbroute_single_config['db_prefix'] = DB_NAME; //数据库前缀，生成类似mmall_0000、mmall_0001...mmall_1023
-//$sc_order_goods_dbroute_single_config['table_prefix'] = "order_goods_0000"; //表名前缀，生成类似order_goods_0000、order_goods_0001...order_goods_1023
-//$sc_order_goods_dbroute_single_config['logic_table'] = "sc_order_goods"; //逻辑表名不能为sql关键字
-//$sc_order_goods_dbroute_single_config['table_logic_column'] = "user_id"; //分表的列，执行sql语句时，要传递此参数
-//$sc_order_goods_dbroute_single_config['table_logic_column_type'] = "int"; //分表的列值的类型
-//$sc_order_goods_dbroute_single_config['select_in_logic_column'] = "user_ids"; //select in 查询时时的参数key名
-//$sc_order_goods_dbroute_single_config['table_total_num'] = 64; //总表数
-//$sc_order_goods_dbroute_single_config['one_db_table_num'] = 64; //每个库里存放的表数
-//
-//$master_sc_order_goods_dbs = array();
-//$master_sc_order_goods_dbs['mmall'] = DB_HOST; //key为数据库名，value为主库所在的host，此value只能配置一个IP
-//$sc_order_goods_dbroute_single_config['db_hosts'] = $master_sc_order_goods_dbs; //每个主库存放在哪个host
-//
-//$slave_sc_order_goods_dbs = array();
-//$slave_sc_order_goods_dbs['mmall'] = DB_HOST . "," . DB_HOST; //key为数据库名，value为slave库所在的host列表，多台用英文半角逗号分隔开，系统随机读其中一台，如果下面read_db_hosts配置了
-//$sc_order_goods_dbroute_single_config['read_db_hosts'] = $slave_sc_order_goods_dbs; //dbroute根据key为‘read_db_hosts’是否设置了值 判断是否有读写分离配置
-///******************************************************************************************************************************************/
+/***************order_goods库表配置(单库多表)*************************************************************************************************/
+$sc_order_goods_dbroute_single_config = array();
+$sc_order_goods_dbroute_single_config['host'] = DB_HOST; //db_host
+$sc_order_goods_dbroute_single_config['user_name'] = DB_USER_NAME; //db username
+$sc_order_goods_dbroute_single_config['pass_word'] = DB_PASSWORD; //db pwd
+$sc_order_goods_dbroute_single_config['port'] = DB_PORT; //db port
+
+$sc_order_goods_dbroute_single_config['db_prefix'] = DB_NAME; //数据库前缀，生成类似mmall_0000、mmall_0001...mmall_1023
+$sc_order_goods_dbroute_single_config['table_prefix'] = "order_goods_0000"; //表名前缀，生成类似order_goods_0000、order_goods_0001...order_goods_1023
+$sc_order_goods_dbroute_single_config['logic_table'] = "sc_order_goods"; //逻辑表名不能为sql关键字
+$sc_order_goods_dbroute_single_config['table_logic_column'] = "user_id"; //分表的列，执行sql语句时，要传递此参数
+$sc_order_goods_dbroute_single_config['table_logic_column_type'] = "int"; //分表的列值的类型
+$sc_order_goods_dbroute_single_config['select_in_logic_column'] = "user_ids"; //select in 查询时时的参数key名
+$sc_order_goods_dbroute_single_config['table_total_num'] = 64; //总表数
+$sc_order_goods_dbroute_single_config['one_db_table_num'] = 64; //每个库里存放的表数
+
+$master_sc_order_goods_dbs = array();
+$master_sc_order_goods_dbs['mmall'] = DB_HOST; //key为数据库名，value为主库所在的host，此value只能配置一个IP
+$sc_order_goods_dbroute_single_config['db_hosts'] = $master_sc_order_goods_dbs; //每个主库存放在哪个host
+
+$slave_sc_order_goods_dbs = array();
+$slave_sc_order_goods_dbs['mmall'] = DB_HOST . "," . DB_HOST; //key为数据库名，value为slave库所在的host列表，多台用英文半角逗号分隔开，系统随机读其中一台，如果下面read_db_hosts配置了
+$sc_order_goods_dbroute_single_config['read_db_hosts'] = $slave_sc_order_goods_dbs; //dbroute根据key为‘read_db_hosts’是否设置了值 判断是否有读写分离配置
+/******************************************************************************************************************************************/
 //
 ///***************用户库表配置(多库多表)********************************************************************************************************/
 //$user_multiple_dbroute_config = array();
